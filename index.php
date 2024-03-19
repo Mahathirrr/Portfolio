@@ -1,98 +1,130 @@
+<?php
+$servername = "localhost";
+$username = "root"; 
+$password = ""; 
+$dbname = "portfolio"; 
+
+// Membuat koneksi ke database
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Memeriksa koneksi
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+// Menjalankan query untuk mengambil data kontak
+$sql = "SELECT * FROM mycontacts";
+$result = $conn->query($sql);
+
+// Membuat array untuk menyimpan semua baris hasil
+$contacts = array();
+
+// Memeriksa apakah hasil query mengandung baris data
+if ($result->num_rows > 0) {
+    // Memasukkan semua baris hasil ke dalam array $contacts
+    while ($row = $result->fetch_assoc()) {
+        $contacts[] = $row;
+    }
+}
+
+// Menutup koneksi database
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portfolio - Mahathir</title>
-
-  <link rel="stylesheet" href="./assets/css/style.css">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio - Mahathir</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <!-- Sisipkan Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <main>
-    <aside class="sidebar" data-sidebar>
-      <div class="sidebar-info">
-        <figure class="avatar-box">
-          <img src="./assets/images/my-avatar.png" alt="Muhammad Mahathir" width="80">
-        </figure>
-        <div class="info-content">
-          <h1 class="name" title="Muhammad Mahathir">Muhammad Mahathir</h1>
-          <p class="title">Junior developer</p>
-        </div>
-        <button class="info_more-btn" data-sidebar-btn>
-          <span>Show Contacts</span>
-          <ion-icon name="chevron-down"></ion-icon>
-        </button>
-      </div>
-
-      <div class="sidebar-info_more">
-        <div class="separator"></div>
-        <ul class="contacts-list">
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="mail-outline"></ion-icon>
+    <main>
+        <!-- Sidebar -->
+        <aside class="sidebar" data-sidebar>
+            <div class="sidebar-info">
+                <?php foreach ($contacts as $contact): ?>
+                    <figure class="avatar-box">
+                        <img src="<?php echo $contact['avatar']; ?>" alt="<?php echo $contact['name']; ?>" width="80">
+                    </figure>
+                    <div class="info-content">
+                        <h1 class="name" title="<?php echo $contact['name']; ?>"><?php echo $contact['name']; ?></h1>
+                        <p class="title"><?php echo $contact['title']; ?></p>
+                    </div>
+                <?php endforeach; ?>
+                <button class="info_more-btn" data-sidebar-btn>
+                    <span>Show Contacts</span>
+                    <ion-icon name="chevron-down"></ion-icon>
+                </button>
             </div>
-            <div class="contact-info">
-              <p class="contact-title">Email</p>
-              <a href="mailto:mhmmdmhthr@gmail.com" class="contact-link">mhmmdmhthr@gmail.com</a>
-            </div>
-          </li>
 
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="phone-portrait-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Phone</p>
-              <a href="tel:+6281397181617" class="contact-link">+(62) 813 9718 1617</a>
-            </div>
-          </li>
+            <div class="sidebar-info_more">
+                <!-- Looping untuk menampilkan kontak -->
+                <?php foreach ($contacts as $contact): ?>
+                    <div class="separator"></div>
+                    <ul class="contacts-list">
+                        <li class="contact-item">
+                            <div class="icon-box">
+                                <ion-icon name="mail-outline"></ion-icon>
+                            </div>
+                            <div class="contact-info">
+                                <p class="contact-title">Email</p>
+                                <a href="mailto:<?php echo $contact['email']; ?>" class="contact-link"><?php echo $contact['email']; ?></a>
+                            </div>
+                        </li>
+                        <li class="contact-item">
+                            <div class="icon-box">
+                                <ion-icon name="phone-portrait-outline"></ion-icon>
+                            </div>
+                            <div class="contact-info">
+                                <p class="contact-title">Phone</p>
+                                <a href="tel:<?php echo $contact['phone']; ?>" class="contact-link"><?php echo formatPhoneNumber($contact['phone']); ?></a>
+                            </div>
+                        </li>
+                        <li class="contact-item">
+                            <div class="icon-box">
+                                <ion-icon name="calendar-outline"></ion-icon>
+                            </div>
+                            <div class="contact-info">
+                                <p class="contact-title">Birthday</p>
+                                <time datetime="<?php echo $contact['birthday']; ?>"><?php echo formatDate($contact['birthday']); ?></time>
+                            </div>
+                        </li>
+                        <li class="contact-item">
+                            <div class="icon-box">
+                                <ion-icon name="location-outline"></ion-icon>
+                            </div>
+                            <div class="contact-info">
+                                <p class="contact-title">Location</p>
+                                <address><?php echo $contact['province'] . ', ' . $contact['country']; ?></address>
+                            </div>
+                        </li>
+                    </ul>
+                <?php endforeach; ?>
+                <div class="separator"></div>
+                  <ul class="social-list">
+                    <li class="social-item">
+                    <a href="https://github.com/Mahathirrr" class="social-link" target="_blank">
+                      <ion-icon name="logo-github"></ion-icon>
+                    </a>
+                  </li>
 
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="calendar-outline"></ion-icon>
+                  <li class="social-item">
+                    <a href="https://www.instagram.com/emhaa._/" class="social-link" target="_blank">
+                      <ion-icon name="logo-instagram"></ion-icon>
+                    </a>
+                  </li>
+              </ul>   
             </div>
-            <div class="contact-info">
-              <p class="contact-title">Birthday</p>
-              <time datetime="1982-06-23">March 13, 2004</time>
-            </div>
-          </li>
-
-          <li class="contact-item">
-            <div class="icon-box">
-              <ion-icon name="location-outline"></ion-icon>
-            </div>
-            <div class="contact-info">
-              <p class="contact-title">Location</p>
-              <address>Aceh, Indonesia</address>
-            </div>
-          </li>
-
-        </ul>
-
-        <div class="separator"></div>
-        <ul class="social-list">
-          <li class="social-item">
-            <a href="https://github.com/Mahathirrr" class="social-link" target="_blank">
-              <ion-icon name="logo-github"></ion-icon>
-            </a>
-          </li>
-
-          <li class="social-item">
-            <a href="https://www.instagram.com/emhaa._/" class="social-link" target="_blank">
-              <ion-icon name="logo-instagram"></ion-icon>
-            </a>
-          </li>
-        </ul>
-
-      </div>
-    </aside>
+        </aside>
 
     <!--
       - #main-content
@@ -235,7 +267,7 @@
               <h4 class="h4 timeline-item-title">Java Developer</h4>
               <span>2023 — Present</span>
               <p class="timeline-text">
-                Adept at crafting versatile and high-performance software solutions.
+                Experienced in Java programming language and associated technologies, adept at crafting versatile and high-performance software solutions.
               </p>
             </li>
           </ol>
@@ -373,3 +405,32 @@
 </body>
 
 </html>
+
+<?php
+
+// Fungsi untuk memformat nomor telepon
+function formatPhoneNumber($number)
+{
+    // Menghilangkan karakter non-digit dari nomor telepon
+    $cleanedNumber = preg_replace('/\D/', '', $number);
+
+    // Memeriksa apakah nomor telepon memiliki kode negara Indonesia (+62)
+    if (substr($cleanedNumber, 0, 2) == '62') {
+        // Memformat nomor telepon dengan kode negara Indonesia (+62)
+        $formattedNumber = '+(' . substr($cleanedNumber, 0, 2) . ') ' . substr($cleanedNumber, 2, 3) . ' ' . substr($cleanedNumber, 5, 4) . ' ' . substr($cleanedNumber, 9);
+    } else {
+        // Jika tidak memiliki kode negara Indonesia, tambahkan kode negara secara manual
+        $formattedNumber = '+(' . substr($cleanedNumber, 0, 2) . ') ' . substr($cleanedNumber, 2, 3) . ' ' . substr($cleanedNumber, 5, 4) . ' ' . substr($cleanedNumber, 9);
+    }
+
+    return $formattedNumber;
+}
+
+
+// Fungsi untuk memformat tanggal
+function formatDate($date)
+{
+    $formattedDate = date('F j, Y', strtotime($date));
+    return $formattedDate;
+}
+?>
